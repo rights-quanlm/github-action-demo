@@ -14,10 +14,7 @@ jobs:
         image: postgres
         env:
           POSTGRES_PASSWORD: postgres
-          POSTGRES_HOST: postgres
           POSTGRES_USER: postgres
-          RAILS_DATABASE_USER: postgres
-          RAILS_DATABASE_PASSWORD: postgres
         ports:
           - 5432:5432
         options: >-
@@ -55,7 +52,15 @@ jobs:
       run: |
         bundle exec bin/webpack
     - name: Run tests
+      env:
+        RAILS_ENV: test
+        POSTGRES_HOST: localhost
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
+        RUBYOPT: "-W:no-deprecated -W:no-experimental"
       run: |
+        bundle exec rake db:setup
         bundle exec rspec
 
   deploy-to-staging:
