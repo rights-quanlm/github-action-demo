@@ -77,5 +77,5 @@ jobs:
           heroku_app_name: "staging-action-demo-quanlm1990" #Must be unique in Heroku
           heroku_email: "lunardrik@gmail.com"
         env:
-          HD_BUILD_NUMBER: "${GITHUB_RUN_NUMBER}"
-          HD_BUILD_COMMIT: "${GITHUB_SHA::6}"
+          HD_BUILD_NUMBER: ${GITHUB_RUN_NUMBER}
+          HD_BUILD_COMMIT: ${GITHUB_SHA::6}
