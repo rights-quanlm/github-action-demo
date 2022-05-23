@@ -52,5 +52,5 @@ jobs:
         uses: AkhileshNS/heroku-deploy@v3.12.12
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: "staging-action-demo-quanlm1990E" #Must be unique in Heroku
+          heroku_app_name: "staging-action-demo-quanlm1990" #Must be unique in Heroku
           heroku_email: "lunardrik@gmail.com"
