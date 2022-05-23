@@ -60,7 +60,7 @@ jobs:
         RUBYOPT: "-W:no-deprecated -W:no-experimental"
       run: |
         bundle exec rake db:setup
-      - name: Run tests
+    - name: Run tests
       env:
         BUILD_NUMBER: "20"
         BUILD_COMMIT: "2f6d887c"
