@@ -60,7 +60,6 @@ jobs:
         RUBYOPT: "-W:no-deprecated -W:no-experimental"
       run: |
         bundle exec rake db:setup
-        bundle exec rake db:migrate
         bundle exec rspec
 
   deploy-to-staging:
