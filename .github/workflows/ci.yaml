@@ -70,12 +70,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: set environmental variables
+        run: |
+          echo "HD_BUILD_NUMBER=$GITHUB_RUN_NUMBER" >> $GITHUB_ENV
+          echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV
+          echo "HD_BUILD_COMMIT=$SHORT_SHA" >> $GITHUB_ENV
       - name: deploy to staging (heroku)
         uses: AkhileshNS/heroku-deploy@v3.12.12
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
           heroku_app_name: "staging-action-demo-quanlm1990" #Must be unique in Heroku
           heroku_email: "lunardrik@gmail.com"
-        env:
-          HD_BUILD_NUMBER: ${GITHUB_RUN_NUMBER}
-          HD_BUILD_COMMIT: ${GITHUB_SHA::6}
