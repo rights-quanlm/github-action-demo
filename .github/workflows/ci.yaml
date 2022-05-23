@@ -50,7 +50,7 @@ jobs:
     - name: Run webpack
       run: |
         bundle exec bin/webpack
-    - name: Setup database
+    - name: Setup database & Run tests
       env:
         RAILS_ENV: test
         POSTGRES_HOST: postgres
@@ -58,13 +58,10 @@ jobs:
         POSTGRES_PASSWORD: postgres
         POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
         RUBYOPT: "-W:no-deprecated -W:no-experimental"
-      run: |
-        bundle exec rake db:setup
-    - name: Run tests
-      env:
         BUILD_NUMBER: "20"
         BUILD_COMMIT: "2f6d887c"
       run: |
+        bundle exec rake db:setup
         bundle exec rspec
 
   deploy-to-staging:
