@@ -8,43 +8,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v1
-
-    - uses: actions/setup-node@v1
+    - uses: actions/checkout@v3
+      # Add or replace dependency steps here
+    - name: Install Ruby and gems
+      uses: ruby/setup-ruby@8f312efe1262fb463d906e9bf040319394c18d3e # v1.92
       with:
-        node-version: '14.x'
-        registry-url: 'https://registry.npmjs.org'
-
-    - name: Gem cache
-      id: cache-bundle
-      uses: actions/cache@v1
-      with:
-        path: vendor/bundle
-        key: bundle-${{ hashFiles('**/Gemfile.lock') }}
-
-    - name: Bundle install
-      env:
-        RAILS_ENV: test
-      run: |
-        gem install bundler
-        bundle install --jobs 4 --retry 3 --path vendor/bundle
-    - name: Install yarn
-      run: npm install -g yarn
-
-    # NOTE: Yarn cache doesn't seem to be working quite yet
-    - name: Get yarn cache dir
-      id: yarn-cache-dir
-      run: echo "::set-output name=dir::$(yarn cache dir)"
-
-    - name: Yarn cache
-      id: cache-yarn
-      uses: actions/cache@v1
-      with:
-        path: ${{ steps.yarn-cache-dir.outputs.dir }}
-        key: yarn-${{ hashFiles('**/yarn.lock') }}
-
-    - name: Yarn install
-      run: yarn install
+        bundler-cache: true
 
     - name: Run tests
       run: |
