@@ -1,20 +1,43 @@
 name: CI
-
 on: [push]
-
+env:
+  cache-version: v1
 jobs:
-  rspec:
-
+  build:
     runs-on: ubuntu-latest
-
+    container:
+      image: ruby:2.7.2
+      env:
+        BUNDLE_PATH: vendor/bundle
     steps:
     - uses: actions/checkout@v3
-      # Add or replace dependency steps here
-    - name: Install Ruby and gems
-      uses: ruby/setup-ruby@8f312efe1262fb463d906e9bf040319394c18d3e # v1.92
+    - name: restore cache vendor/bundle
+      uses: actions/cache@v1
       with:
-        bundler-cache: true
-
+        path: vendor/bundle
+        key: ${{ env.cache-version }}-bundle-${{ hashFiles('**/Gemfile.lock') }}
+    - name: restore cache node_modules
+      uses: actions/cache@v1
+      with:
+        path: node_modules
+        key: ${{ env.cache-version }}-yarn-${{ hashFiles('**/yarn.lock') }}
+    - name: Set up yarn and node
+      run: |
+        curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
+        echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+        curl -sL https://deb.nodesource.com/setup_12.x | bash -
+        apt install -y yarn nodejs
+    - name: Build
+      env:
+        BUNDLE_RUBYGEMS__PKG__GITHUB__COM: ${{ secrets.BUNDLE_RUBYGEMS__PKG__GITHUB__COM }}
+      run: |
+        gem install bundler
+        bundle config set deployment 'true'
+        bundle install --jobs 4 --retry 3
+        bundle exec rails yarn:install 
+    - name: Run webpack
+      run: |
+        bundle exec bin/webpack
     - name: Run tests
       run: |
         bundle exec rspec
