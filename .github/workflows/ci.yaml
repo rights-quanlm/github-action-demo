@@ -6,9 +6,21 @@ jobs:
   test:
     runs-on: ubuntu-latest
     container:
-      image: ruby:2.6.3
+      image: ruby:2.7.2
       env:
         BUNDLE_PATH: vendor/bundle
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
     - uses: actions/checkout@v3
     - name: restore cache vendor/bundle
@@ -39,7 +51,15 @@ jobs:
       run: |
         bundle exec bin/webpack
     - name: Run tests
+      env:
+        RAILS_ENV: test
+        POSTGRES_HOST: postgres
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
+        RUBYOPT: "-W:no-deprecated -W:no-experimental"
       run: |
+        bundle exec rake db:setup
         bundle exec rspec
 
   deploy-to-staging:
