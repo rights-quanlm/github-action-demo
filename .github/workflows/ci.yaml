@@ -77,6 +77,30 @@ jobs:
       - name: deploy to staging (heroku)
         uses: AkhileshNS/heroku-deploy@v3.12.12
         with:
-          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
           heroku_app_name: "staging-action-demo-quanlm1990" #Must be unique in Heroku
           heroku_email: "lunardrik@gmail.com"
+
+  # deploy-to-prod:
+  #   #if: github.ref == 'refs/heads/main'
+  #   #needs: test
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: set environmental variables
+  #       run: |
+  #         echo "BUILD_NUMBER=$GITHUB_RUN_NUMBER" >> $GITHUB_ENV
+  #         echo "BUILD_COMMIT=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV
+  #     - name: deploy to production (aws)
+  #       uses: appleboy/ssh-action@v0.1.4
+  #       with:
+  #         host: 54.202.136.30
+  #         username: ubuntu
+  #         key: ${{ secrets.EC2_SSH_KEY }}
+  #         envs: BUILD_NUMBER,BUILD_COMMIT
+  #         debug: true
+  #         script: |
+  #           source /home/ubuntu/.bash_profile
+  #           export PATH=/home/ubuntu/.nvm/versions/node/v14.4.0/bin:$PATH
+  #           cd /home/ubuntu/dist
+  #           echo $PATH
+  #           BUILD_NUMBER=$BUILD_NUMBER BUILD_COMMIT=$BUILD_COMMIT nohup ./backup.sh  < /dev/null  >run.log 2>&1 & 
