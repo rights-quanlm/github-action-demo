@@ -98,5 +98,5 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           debug: true
           script: |
-            cd /home/ubuntu/
+            cd /home/ubuntu/dist
             ./backup.sh
