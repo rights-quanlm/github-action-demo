@@ -100,7 +100,7 @@ jobs:
           debug: true
           script: |
             source /home/ubuntu/.bash_profile
-            nvm use 14.4.0
+            export PATH=/home/ubuntu/.nvm/versions/node/v14.4.0/bin:$PATH 
             cd /home/ubuntu/dist
             echo $PATH
             ./backup.sh
