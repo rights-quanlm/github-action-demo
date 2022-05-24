@@ -99,6 +99,7 @@ jobs:
           envs: BUILD_NUMBER,BUILD_COMMIT
           debug: true
           script: |
+            source /home/ubuntu/.bash_profile
             nvm use 14.4.0
             cd /home/ubuntu/dist
             echo $PATH
