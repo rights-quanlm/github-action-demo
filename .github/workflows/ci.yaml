@@ -97,5 +97,6 @@ jobs:
           host: 54.202.136.30
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
+          debug: true
           script: |
             ./backup.sh
