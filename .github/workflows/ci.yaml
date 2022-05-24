@@ -99,7 +99,7 @@ jobs:
           envs: BUILD_NUMBER,BUILD_COMMIT
           debug: true
           script: |
-            source /home/ubuntu/.profile
+            source /home/ubuntu/.bash_profile
             cd /home/ubuntu/dist
             echo $PATH
             ./backup.sh
