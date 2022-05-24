@@ -86,14 +86,13 @@ jobs:
     #needs: test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
       - name: set environmental variables
         run: |
           echo "BUILD_NUMBER=$GITHUB_RUN_NUMBER" >> $GITHUB_ENV
           echo "BUILD_COMMIT=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV
       - name: deploy to production (aws)
         uses: appleboy/ssh-action@v0.1.4
-        env:
+        with:
           host: 54.202.136.30
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
