@@ -101,4 +101,5 @@ jobs:
           script: |
             source /home/ubuntu/.bashrc
             cd /home/ubuntu/dist
+            echo $PATH
             ./backup.sh
