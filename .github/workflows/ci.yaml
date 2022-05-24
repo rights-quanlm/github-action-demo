@@ -3,80 +3,99 @@ on: [push]
 env:
   cache-version: v1
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    container:
-      image: ruby:2.7.2
-      env:
-        BUNDLE_PATH: vendor/bundle
-    services:
-      postgres:
-        image: postgres
-        env:
-          POSTGRES_PASSWORD: postgres
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-    steps:
-    - uses: actions/checkout@v3
-    - name: restore cache vendor/bundle
-      uses: actions/cache@v1
-      with:
-        path: vendor/bundle
-        key: ${{ env.cache-version }}-bundle-${{ hashFiles('**/Gemfile.lock') }}
-    - name: restore cache node_modules
-      uses: actions/cache@v1
-      with:
-        path: node_modules
-        key: ${{ env.cache-version }}-yarn-${{ hashFiles('**/yarn.lock') }}
-    - name: Set up yarn and node
-      run: |
-        curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
-        echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
-        curl -sL https://deb.nodesource.com/setup_12.x | bash -
-        apt install -y yarn nodejs
-    - name: Build
-      env:
-        BUNDLE_RUBYGEMS__PKG__GITHUB__COM: ${{ secrets.BUNDLE_RUBYGEMS__PKG__GITHUB__COM }}
-      run: |
-        gem install bundler
-        bundle config set deployment 'true'
-        bundle install --jobs 4 --retry 3
-        bundle exec rails yarn:install 
-    - name: Run webpack
-      run: |
-        bundle exec bin/webpack
-    - name: Setup database & Run tests
-      env:
-        RAILS_ENV: test
-        POSTGRES_HOST: postgres
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: postgres
-        POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
-        RUBYOPT: "-W:no-deprecated -W:no-experimental"
-        BUILD_NUMBER: "20"
-        BUILD_COMMIT: "2f6d887c"
-      run: |
-        bundle exec rake db:setup
-        bundle exec rspec
+  # test:
+  #   runs-on: ubuntu-latest
+  #   container:
+  #     image: ruby:2.7.2
+  #     env:
+  #       BUNDLE_PATH: vendor/bundle
+  #   services:
+  #     postgres:
+  #       image: postgres
+  #       env:
+  #         POSTGRES_PASSWORD: postgres
+  #       ports:
+  #         - 5432:5432
+  #       options: >-
+  #         --health-cmd pg_isready
+  #         --health-interval 10s
+  #         --health-timeout 5s
+  #         --health-retries 5
+  #   steps:
+  #   - uses: actions/checkout@v3
+  #   - name: restore cache vendor/bundle
+  #     uses: actions/cache@v1
+  #     with:
+  #       path: vendor/bundle
+  #       key: ${{ env.cache-version }}-bundle-${{ hashFiles('**/Gemfile.lock') }}
+  #   - name: restore cache node_modules
+  #     uses: actions/cache@v1
+  #     with:
+  #       path: node_modules
+  #       key: ${{ env.cache-version }}-yarn-${{ hashFiles('**/yarn.lock') }}
+  #   - name: Set up yarn and node
+  #     run: |
+  #       curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
+  #       echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+  #       curl -sL https://deb.nodesource.com/setup_12.x | bash -
+  #       apt install -y yarn nodejs
+  #   - name: Build
+  #     env:
+  #       BUNDLE_RUBYGEMS__PKG__GITHUB__COM: ${{ secrets.BUNDLE_RUBYGEMS__PKG__GITHUB__COM }}
+  #     run: |
+  #       gem install bundler
+  #       bundle config set deployment 'true'
+  #       bundle install --jobs 4 --retry 3
+  #       bundle exec rails yarn:install 
+  #   - name: Run webpack
+  #     run: |
+  #       bundle exec bin/webpack
+  #   - name: Setup database & Run tests
+  #     env:
+  #       RAILS_ENV: test
+  #       POSTGRES_HOST: postgres
+  #       POSTGRES_USER: postgres
+  #       POSTGRES_PASSWORD: postgres
+  #       POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
+  #       RUBYOPT: "-W:no-deprecated -W:no-experimental"
+  #       BUILD_NUMBER: "20"
+  #       BUILD_COMMIT: "2f6d887c"
+  #     run: |
+  #       bundle exec rake db:setup
+  #       bundle exec rspec
 
-  deploy-to-staging:
-    if: github.ref == 'refs/heads/develop'
+  # deploy-to-staging:
+  #   if: github.ref == 'refs/heads/develop'
+  #   needs: test
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: set environmental variables
+  #       run: |
+  #         echo "HD_BUILD_NUMBER=$GITHUB_RUN_NUMBER" >> $GITHUB_ENV
+  #         echo "HD_BUILD_COMMIT=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV
+  #     - name: deploy to staging (heroku)
+  #       uses: AkhileshNS/heroku-deploy@v3.12.12
+  #       with:
+  #         heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+  #         heroku_app_name: "staging-action-demo-quanlm1990" #Must be unique in Heroku
+  #         heroku_email: "lunardrik@gmail.com"
+
+  deploy-to-prod:
+    #if: github.ref == 'refs/heads/main'
     needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - name: set environmental variables
         run: |
-          echo "HD_BUILD_NUMBER=$GITHUB_RUN_NUMBER" >> $GITHUB_ENV
-          echo "HD_BUILD_COMMIT=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV
-      - name: deploy to staging (heroku)
-        uses: AkhileshNS/heroku-deploy@v3.12.12
-        with:
-          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: "staging-action-demo-quanlm1990" #Must be unique in Heroku
-          heroku_email: "lunardrik@gmail.com"
+          echo "BUILD_NUMBER=$GITHUB_RUN_NUMBER" >> $GITHUB_ENV
+          echo "BUILD_COMMIT=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV
+      - name: deploy to production (aws)
+        uses: appleboy/ssh-action@v0.1.4
+        env:
+          host: 54.202.136.30
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            ./backup.sh
