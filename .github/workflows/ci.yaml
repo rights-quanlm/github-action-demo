@@ -103,4 +103,4 @@ jobs:
             export PATH=/home/ubuntu/.nvm/versions/node/v14.4.0/bin:$PATH
             cd /home/ubuntu/dist
             echo $PATH
-            BUILD_NUMBER=$BUILD_NUMBER BUILD_COMMIT=$BUILD_COMMIT nohup ./backup.sh  >run.log 2>&1 & 
+            BUILD_NUMBER=$BUILD_NUMBER BUILD_COMMIT=$BUILD_COMMIT nohup ./backup.sh  < /dev/null  >run.log 2>&1 & 
