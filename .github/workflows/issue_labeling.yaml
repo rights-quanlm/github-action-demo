@@ -1,3 +1,4 @@
+name: 新Issueにラベルを付ける
 on:
   issues:
     types:
