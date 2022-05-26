@@ -33,24 +33,19 @@ jobs:
       with:
         path: node_modules
         key: ${{ env.cache-version }}-yarn-${{ hashFiles('**/yarn.lock') }}
-    - name: Set up yarn and node
+    - name: set up yarn and node
       run: |
         curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
         echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
         curl -sL https://deb.nodesource.com/setup_12.x | bash -
         apt install -y yarn nodejs
-    - name: Build
-      env:
-        BUNDLE_RUBYGEMS__PKG__GITHUB__COM: ${{ secrets.BUNDLE_RUBYGEMS__PKG__GITHUB__COM }}
+    - name: build
       run: |
         gem install bundler
         bundle config set deployment 'true'
         bundle install --jobs 4 --retry 3
-        bundle exec rails yarn:install 
-    - name: Run webpack
-      run: |
-        bundle exec bin/webpack
-    - name: Setup database & Run tests
+        bundle exec rails yarn:install
+    - name: setup database & run tests
       env:
         RAILS_ENV: test
         POSTGRES_HOST: postgres
